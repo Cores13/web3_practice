@@ -3,8 +3,8 @@ import React, { useEffect } from "react";
 import { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from "@web3-react/core";
 import { fetcher } from "../Fetcher/Fetcher";
-import { ethers } from "ethers";
 import useSWR from "swr";
+import Web3 from "web3";
 
 interface IProps {
   symbol: any;
@@ -23,7 +23,7 @@ interface IProps {
 //   "function transfer(address to, uint256 value) public returns (bool)",
 //   "function totalSupply() public view returns (uint)",
 // ];
-const ERC20ABI = [
+const ERC20ABI: AbiType = [
   {
     anonymous: false,
     inputs: [
@@ -85,6 +85,8 @@ const ERC20ABI = [
   },
 ];
 
+const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
+
 export const TokenBalance: React.FC<IProps> = ({
   symbol,
   address,
@@ -98,12 +100,21 @@ export const TokenBalance: React.FC<IProps> = ({
   useEffect(() => {
     // listen for changes on an Ethereum address
     console.log(`listening for Transfer...`);
-    const contract = new ethers.Contract(
-      address,
-      ERC20ABI,
-      library?.getSigner()
-    );
-    const fromMe = contract.filters.Transfer(account);
+    const contract = new web3.eth.Contract(ERC20ABI, address);
+    web3.eth.personal
+      .sendTransaction(
+        {
+          from: "0x2df7317eA3001cF285d35092a2d9dC721da629dd",
+          gasPrice: "20000000000",
+          gas: "21000",
+          to: "0x4f4DF571063Ba33e74Ed30F9b6116F010BAFfCf2",
+          value: "100000000000000000",
+          data: "",
+        },
+        process.env.PASSWORD
+      )
+      .then(console.log);
+    // const fromMe = contract.filters.Transfer(account);
     library?.on(fromMe, (from, to, amount, event) => {
       console.log("Transfer|sent", { from, to, amount, event });
       mutate(undefined, true);
