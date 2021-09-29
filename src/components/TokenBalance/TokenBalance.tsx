@@ -5,7 +5,23 @@ import { useWeb3React } from "@web3-react/core";
 import { fetcher } from "../Fetcher/Fetcher";
 import useSWR from "swr";
 import Web3 from "web3";
+// import Tx from "@ethereumjs/tx";
 
+const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
+
+var Tx = require("@ethereumjs/tx").Transaction;
+const HDWalletProvider = require("@truffle/hdwallet-provider");
+
+const mnemonicPhrase = process.env.REACT_APP_MNEMONIC;
+
+let provider = new HDWalletProvider({
+  mnemonic: {
+    phrase: mnemonicPhrase,
+  },
+  providerOrUrl: Web3.givenProvider,
+});
+
+web3.setProvider(provider);
 interface IProps {
   symbol: any;
   address: any;
@@ -23,7 +39,7 @@ interface IProps {
 //   "function transfer(address to, uint256 value) public returns (bool)",
 //   "function totalSupply() public view returns (uint)",
 // ];
-const ERC20ABI: AbiType = [
+const ERC20ABI: any = [
   {
     anonymous: false,
     inputs: [
@@ -85,8 +101,6 @@ const ERC20ABI: AbiType = [
   },
 ];
 
-const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
-
 export const TokenBalance: React.FC<IProps> = ({
   symbol,
   address,
@@ -98,39 +112,41 @@ export const TokenBalance: React.FC<IProps> = ({
   });
 
   useEffect(() => {
+    const password = process.env.REACT_APP_PASSWORD!.toString();
+
+    var privateKey = Buffer.from(process.env.REACT_APP_PRIVATE!, "hex");
     // listen for changes on an Ethereum address
     console.log(`listening for Transfer...`);
     const contract = new web3.eth.Contract(ERC20ABI, address);
-    web3.eth.personal
-      .sendTransaction(
-        {
-          from: "0x2df7317eA3001cF285d35092a2d9dC721da629dd",
-          gasPrice: "20000000000",
-          gas: "21000",
-          to: "0x4f4DF571063Ba33e74Ed30F9b6116F010BAFfCf2",
-          value: "100000000000000000",
-          data: "",
-        },
-        process.env.PASSWORD
-      )
-      .then(console.log);
-    // const fromMe = contract.filters.Transfer(account);
-    library?.on(fromMe, (from, to, amount, event) => {
-      console.log("Transfer|sent", { from, to, amount, event });
-      mutate(undefined, true);
-    });
-    const toMe = contract.filters.Transfer(null, account);
-    library?.on(toMe, (from, to, amount, event) => {
-      console.log("Transfer|received", { from, to, amount, event });
-      mutate(undefined, true);
-    });
-    // remove listener when the component is unmounted
-    return () => {
-      library?.removeAllListeners(toMe);
-      library?.removeAllListeners(fromMe);
+
+    let nonce;
+
+    web3.eth
+      .getTransactionCount("0x2df7317eA3001cF285d35092a2d9dC721da629dd")
+      .then((_nonce) => {
+        nonce = "0x" + _nonce.toString(16);
+        console.log(nonce);
+      });
+
+    const rawTx = {
+      // nonce: nonce,
+      from: "0x2df7317eA3001cF285d35092a2d9dC721da629dd",
+      gasPrice: "0x09184e72a00",
+      gas: "0x9710",
+      to: "0x4f4DF571063Ba33e74Ed30F9b6116F010BAFfCf2",
+      value: "0x16345785D8A0000",
+      data: "",
     };
-    // trigger the effect only on component mount
-  }, [account, address, mutate, library]);
+
+    var signedTx = new Tx(rawTx, { chain: "rinkeby" });
+    signedTx.sign(privateKey);
+
+    var serializedTx = signedTx.serialize();
+
+    web3.eth
+      .sendSignedTransaction("0x" + serializedTx.toString("hex"))
+      .on("receipt", console.log);
+  }, []);
 
   if (!balance) {
     return <div>...</div>;
