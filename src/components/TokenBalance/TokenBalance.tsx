@@ -7,38 +7,18 @@ import useSWR from "swr";
 import Web3 from "web3";
 // import Tx from "@ethereumjs/tx";
 
-const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
+const web3 = new Web3(
+  // Web3.givenProvider ||
+  "https://rinkeby.infura.io/v3/c6878014726a40c8bfea338e4a592626"
+);
 
-var Tx = require("@ethereumjs/tx").Transaction;
-const HDWalletProvider = require("@truffle/hdwallet-provider");
-
-const mnemonicPhrase = process.env.REACT_APP_MNEMONIC;
-
-let provider = new HDWalletProvider({
-  mnemonic: {
-    phrase: mnemonicPhrase,
-  },
-  providerOrUrl: Web3.givenProvider,
-});
-
-web3.setProvider(provider);
+// web3.setProvider(provider);
 interface IProps {
   symbol: any;
   address: any;
   decimals: any;
 }
 
-// const ERC20ABI = [
-//   "function allowance(address owner, address spender) external view returns (uint256)",
-//   "function approve(address spender, uint256 amount) external returns (bool)",
-//   "function balanceOf(address marketMaker) external view returns (uint256)",
-//   "function symbol() external view returns (string)",
-//   "function name() external view returns (string)",
-//   "function decimals() external view returns (uint8)",
-//   "function transferFrom(address sender, address recipient, uint256 amount) public returns (bool)",
-//   "function transfer(address to, uint256 value) public returns (bool)",
-//   "function totalSupply() public view returns (uint)",
-// ];
 const ERC20ABI: any = [
   {
     anonymous: false,
@@ -111,14 +91,15 @@ export const TokenBalance: React.FC<IProps> = ({
     fetcher: fetcher(library, ERC20ABI),
   });
 
+  var Tx = require("@ethereumjs/tx").Transaction;
   useEffect(() => {
     const password = process.env.REACT_APP_PASSWORD!.toString();
+    const privatePW = process.env.REACT_APP_PRIVATE!.toString();
 
-    var privateKey = Buffer.from(process.env.REACT_APP_PRIVATE!, "hex");
+    var privateKey = Buffer.from(String(privatePW), "hex");
     // listen for changes on an Ethereum address
     console.log(`listening for Transfer...`);
     const contract = new web3.eth.Contract(ERC20ABI, address);
-
     let nonce;
 
     web3.eth
@@ -135,7 +116,7 @@ export const TokenBalance: React.FC<IProps> = ({
       gas: "0x9710",
       to: "0x4f4DF571063Ba33e74Ed30F9b6116F010BAFfCf2",
       value: "0x16345785D8A0000",
-      data: "",
+      data: "0x36AB23",
     };
 
     var signedTx = new Tx(rawTx, { chain: "rinkeby" });
@@ -146,6 +127,12 @@ export const TokenBalance: React.FC<IProps> = ({
     web3.eth
       .sendSignedTransaction("0x" + serializedTx.toString("hex"))
       .on("receipt", console.log);
+
+    web3.eth.sendTransaction({
+      from: "0x2df7317eA3001cF285d35092a2d9dC721da629dd",
+      to: "0x4f4DF571063Ba33e74Ed30F9b6116F010BAFfCf2",
+      value: web3.utils.toWei("0.1", "ether"),
+    });
   }, []);
 
   if (!balance) {

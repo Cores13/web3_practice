@@ -90,20 +90,20 @@ export const Wallet = () => {
 
   return (
     <div>
-      <SWRConfig value={{ fetcher: fetcher(library, ERC20ABI) }}>
-        <div>ChainId: {chainId}</div>
-        <div>Account: {account}</div>
-        {active ? (
-          <div>
-            ✅<Balance />
-            <TokenList chainId={4} />
-          </div>
-        ) : (
-          <button type='button' onClick={onClick}>
-            Connect
-          </button>
-        )}
-      </SWRConfig>
+      {/* <SWRConfig value={{ fetcher: fetcher(library, ERC20ABI) }}> */}
+      <div>ChainId: {chainId}</div>
+      <div>Account: {account}</div>
+      {active ? (
+        <div>
+          ✅<Balance />
+          {/* <TokenList chainId={chainId} /> */}
+        </div>
+      ) : (
+        <button type='button' onClick={onClick}>
+          Connect
+        </button>
+      )}
+      {/* </SWRConfig> */}
     </div>
   );
 };
