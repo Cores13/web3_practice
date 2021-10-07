@@ -6,7 +6,7 @@ import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
 
 contract Lottery is VRFConsumerBase  {
     address payable[] public players;
-    address public manager;
+    address payable public manager;
     
     // Chainlink random number variables
     bytes32 internal keyHash;
@@ -22,7 +22,7 @@ contract Lottery is VRFConsumerBase  {
             0x01BE23585060835E02B77ef475b0Cc51aA1e0709  // LINK Token
         )
     {
-        manager = msg.sender;
+        manager = payable(msg.sender);
         keyHash = 0x2ed0feb3e7fd2022120aa84fab1945545a9f2ffc9076fd6156fa96eaff4c1311;
         fee = 0.1 * 10 ** 18; // 0.1 LINK (Varies by network)
     }
@@ -45,10 +45,12 @@ contract Lottery is VRFConsumerBase  {
      * Callback function used by VRF Coordinator
      */
     function fulfillRandomness(bytes32 requestId, uint256 randomness) internal onlyManager override {
+        randomResult = uint(requestId);
         randomResult = randomness;
     }
     
     receive() external payable{
+        require(msg.sender != manager, 'Manager can\'t join the lottery!');
         require(msg.value == 0.1 ether);
         players.push(payable(msg.sender));
     }
@@ -62,11 +64,12 @@ contract Lottery is VRFConsumerBase  {
     }
     
     function pickWinner() public onlyManager {
-        // require(players.length >= 3);
+        require(players.length >= 3);
         index = random();
         winner = players[index];
     }
     function payTheWinner() public onlyManager{
+        manager.transfer((getBalance() * 10 / 100));
         winner.transfer(getBalance());
         players = new address payable[](0); // reseting the lottery
         winner = players[0];
