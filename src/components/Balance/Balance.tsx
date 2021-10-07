@@ -314,7 +314,9 @@ export const Balance = () => {
       nonce: await web3.utils.toHex(count),
     };
 
-    console.log(contract.methods.balanceOf(toAddress).call());
+    contract.methods
+      .transfer(toAddress, web3.utils.toHex(web3.utils.toWei("0.1", "ether")))
+      .call(() => console.log);
 
     let transaction = new Tx(rawTransaction);
     let trx = await transaction.sign(privateK);
