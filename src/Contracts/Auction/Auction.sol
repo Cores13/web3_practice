@@ -2,15 +2,6 @@
 
 pragma solidity >=0.5.0 <0.9.0;
 
-contract AuctionCreator {
-    Auction[] public auctions;
-    
-    function deployA() public{
-        Auction newAAdress = new Auction(msg.sender);
-        auctions.push(newAAdress);
-    }
-}
-
 contract Auction {
     address payable public owner;
     uint public startBlock;
