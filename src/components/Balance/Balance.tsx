@@ -1,18 +1,12 @@
 import { formatEther } from "@ethersproject/units";
-import React, { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { fetcher } from "../Fetcher/Fetcher";
 import { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from "@web3-react/core";
 import useSWR from "swr";
 import Web3 from "web3";
 const Tx = require("ethereumjs-tx");
-var Accounts = require("web3-eth-accounts");
-const Common = require("ethereumjs-common");
-const common = Common.default.forCustomChain("rinkeby", {
-  name: "rinkeby",
-  networkId: 4,
-  chainId: 4,
-});
+
 let tokenAddress = "0x12766B523bd7422834E372727880ED2585619B2f";
 var web3 = new Web3(
   Web3.givenProvider ||
@@ -283,7 +277,7 @@ export const Balance = () => {
   const { data: balance, mutate } = useSWR(["getBalance", account, "latest"], {
     fetcher: fetcher(library),
   });
-  const password = process.env.REACT_APP_PASSWORD!.toString();
+
   const privateKey = process.env.REACT_APP_PRIVATE!.toString();
   const account1: string = account!;
   const account2: string = "0x4f4df571063ba33e74ed30f9b6116f010baffcf2";
@@ -295,8 +289,6 @@ export const Balance = () => {
     amount: any,
     privateKey: any
   ) => {
-    let privateK = Buffer.from(privateKey, "hex");
-
     let contract = await new web3.eth.Contract(contractABI, tokenAddress, {
       from: fromAddress,
     });
@@ -319,7 +311,6 @@ export const Balance = () => {
       .call(() => console.log);
 
     let transaction = new Tx(rawTransaction);
-    let trx = await transaction.sign(privateK);
 
     let hash = await web3.eth.sendSignedTransaction(
       "0x" + transaction.serialize().toString("hex")
@@ -344,6 +335,8 @@ export const Balance = () => {
     };
 
     // trigger the effect only on component mount
+
+    //eslint-disable-next-line
   }, []);
 
   if (!balance) {

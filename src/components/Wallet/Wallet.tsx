@@ -3,23 +3,10 @@ import { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { Balance } from "../Balance/Balance";
-import { TokenBalance } from "../TokenBalance/TokenBalance";
-import { TokenList } from "../TokenList/TokenList";
 import { SWRConfig } from "swr";
 import { fetcher } from "../Fetcher/Fetcher";
-import { formatEther } from "@ethersproject/units";
-import useSWR from "swr";
 import Web3 from "web3";
-const Tx = require("ethereumjs-tx");
-const Common = require("ethereumjs-common");
 
-const common = Common.default.forCustomChain("rinkeby", {
-  name: "rinkeby",
-  networkId: 4,
-  chainId: 4,
-});
-
-let tokenAddress = "0x12766B523bd7422834E372727880ED2585619B2f";
 var web3 = new Web3(
   Web3.givenProvider ||
     "https://rinkeby.infura.io/v3/c3950d5fe0814e3e9bd30ba0fcd21aa2"
