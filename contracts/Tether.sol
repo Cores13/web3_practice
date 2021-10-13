@@ -2,9 +2,9 @@
 
 pragma solidity >=0.5.0 <0.9.0;
 
-contract SquidGamer {
-    string public name = 'SquidGamer';
-    string public symbol = 'SQDG';
+contract Tether {
+    string public name = 'Tether';
+    string public symbol = 'TETH';
     uint256 public totalSupply = 1000000000000000000000000000;
     uint256 public decimals = 18;
     address payable public owner;
@@ -16,12 +16,8 @@ contract SquidGamer {
     mapping(address => mapping(address => uint256)) public allowance;
 
     constructor() {
-        owner = msg.sender;
-        balanceOf[owner] = totalSupply
-    }
-
-    function balanceOf(address _owner) public view override returns (uint256 balance){
-        return balances[_owner];
+        owner = payable(msg.sender);
+        balanceOf[owner] = totalSupply;
     }
 
     function transfer(address payable _to, uint256 _value) public returns(bool success) {

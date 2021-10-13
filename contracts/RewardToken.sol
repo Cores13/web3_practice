@@ -16,12 +16,8 @@ contract RewardToken {
     mapping(address => mapping(address => uint256)) public allowance;
 
     constructor() {
-        owner = msg.sender;
-        balanceOf[owner] = totalSupply
-    }
-
-    function balanceOf(address _owner) public view override returns (uint256 balance){
-        return balances[_owner];
+        owner = payable(msg.sender);
+        balanceOf[owner] = totalSupply;
     }
 
     function transfer(address payable _to, uint256 _value) public returns(bool success) {
