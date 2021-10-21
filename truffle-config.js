@@ -46,15 +46,20 @@ module.exports = {
     // options below to some value.
     //
     development: {
-      host: "172.24.48.1", // Localhost (default: none)
-      port: "7545", // Standard Ethereum port (default: none)
+      provider: function () {
+        return new HDWalletProvider(
+          // process.env.REACT_APP_MNEMONIC,
+          "oven life pupil mirror mushroom half gospel wealth wise siren repeat cannon",
+          "https://rinkeby.infura.io/v3/c6878014726a40c8bfea338e4a592626"
+        );
+      }, // Standard Ethereum port (default: none)
       network_id: "*", // Any network (default: none)
     },
     rinkeby: {
       provider: function () {
         return new HDWalletProvider(
-          process.env.REACT_APP_MNEMONIC,
-          // "oven life pupil mirror mushroom half gospel wealth wise siren repeat cannon",
+          // process.env.REACT_APP_MNEMONIC,
+          "oven life pupil mirror mushroom half gospel wealth wise siren repeat cannon",
           "https://rinkeby.infura.io/v3/c6878014726a40c8bfea338e4a592626"
         );
       },
